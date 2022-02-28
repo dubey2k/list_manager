@@ -5,7 +5,7 @@
 ![GitHub contributors](https://img.shields.io/github/contributors/dubey2k/list_manager)
 ![GitHub stars](https://img.shields.io/github/stars/dubey2k/list_manager?style=social)
 ![GitHub forks](https://img.shields.io/github/forks/dubey2k/list_manager?style=social)
-![Twitter Follow](https://img.shields.io/twitter/follow/@dubey2k?style=social)
+![Twitter Follow](https://img.shields.io/twitter/follow/dubey2k?style=social)
 
 Project name is a `<utility/tool/feature>` that allows `<insert_target_audience>` to do `<action/task_it_does>`.
 
