@@ -1,3 +1,5 @@
-## 0.0.1
+# 1.0.0
 
-* TODO: Describe initial release.
+    Created Package
+    [x] Work on Documentation
+    [x] Provide more flexibility arounf Filter View
