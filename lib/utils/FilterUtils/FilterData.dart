@@ -17,6 +17,7 @@ class FilterData {
   String? name;
   List<FilterOptionModel> subFilterOptions;
   List<int> selected = [];
+  List<String> selValue = [];
 
   factory FilterData.fromJson(Map<String, dynamic> json) => FilterData(
         filterKey: json["filterKey"] ?? "",

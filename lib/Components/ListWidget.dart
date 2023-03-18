@@ -11,11 +11,13 @@ class ListWidget<T> extends StatefulWidget {
     required this.itemBuilder,
     this.separatorBuilder,
     this.error,
+    this.noData,
     required this.loader,
   }) : super(key: key);
   final ItemCallback<T> itemBuilder;
   final ItemCallback<T>? separatorBuilder;
   final WidgetCallback? error;
+  final Widget? noData;
   final Widget loader;
 
   @override
@@ -37,9 +39,7 @@ class _ListWidgetState<T> extends State<ListWidget<T>> {
           var pagHelper = list.helper;
           if (list.status != ListStatus.LOADING &&
               pagHelper?.hasNext == true &&
-              pagHelper?.loadNext == true &&
-              pagHelper?.nextUrl != null &&
-              pagHelper?.nextUrl?.isNotEmpty == true) {
+              pagHelper?.loadNext == true) {
             list.loadData();
           }
         }
@@ -83,7 +83,8 @@ class _ListWidgetState<T> extends State<ListWidget<T>> {
     int length = list.length;
     if (addLoader == 1) length++;
     if (addError == 1) length++;
-    return ListView.separated(
+
+    Widget listWid = ListView.separated(
       controller: _scrollController,
       itemCount: length,
       itemBuilder: (context, index) {
@@ -109,5 +110,6 @@ class _ListWidgetState<T> extends State<ListWidget<T>> {
         }
       },
     );
+    return length == 0 ? widget.noData ?? listWid : listWid;
   }
 }

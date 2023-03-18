@@ -1,15 +1,11 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:list_manager/APIResponse/Result.dart';
 import 'package:list_manager/utils/FilterUtils/FilterController.dart';
 import 'package:list_manager/utils/PagingUtils/PagingController.dart';
-import 'package:list_manager/list_manager.dart';
-import 'package:list_manager/utils/SearchUtils/SearchController.dart';
 import '../utils/PagingUtils/PagingHelper.dart';
 
 enum ListStatus { IDLE, LOADING, EMPTY, ERROR, LOADED }
 
-enum ListType { PAGING, FILTERING, SEARCHING }
+enum ListType { PAGING, FILTERING }
 
 class ListProvider<T> extends ChangeNotifier {
   List<T>? listData;
@@ -17,22 +13,29 @@ class ListProvider<T> extends ChangeNotifier {
   String? error;
   PagingController<T>? pagingController;
   FilterController<T>? filterController;
-  SearchController<T>? searchController;
   PagingHelper? helper;
   ListType listType = ListType.PAGING;
+  final Widget? noData;
 
-  ListProvider(
-      {this.pagingController, this.filterController, this.searchController}) {
+  ListProvider({
+    this.pagingController,
+    this.filterController,
+    this.noData,
+  }) {
     helper = pagingController?.pagingHelper;
     pagingController?.addListener(() {
       setListType(ListType.PAGING);
       notifyListeners();
     });
     filterController?.addListener(() {
+      if (filterController!.searchQuery.isEmpty) {
+        setListType(ListType.PAGING);
+      }
       if (filterController?.filterStatus == FilterStatus.FILTER_IDLE &&
           filterController?.listStatus == ListStatus.IDLE) {
         setListType(ListType.PAGING);
-      } else if (filterController?.filterStatus == FilterStatus.FILTER_LOADED &&
+      } else if (
+          // filterController?.filterStatus == FilterStatus.FILTER_LOADED &&
           filterController?.listStatus != ListStatus.IDLE) {
         setListType(ListType.FILTERING);
       }
@@ -51,10 +54,6 @@ class ListProvider<T> extends ChangeNotifier {
         break;
       case ListType.FILTERING:
         await filterController?.loadMore();
-        setListType(ListType.FILTERING);
-        break;
-      case ListType.SEARCHING:
-        await searchController?.loadMore();
         setListType(ListType.FILTERING);
         break;
     }
@@ -86,14 +85,6 @@ class ListProvider<T> extends ChangeNotifier {
         listData = filterController?.listData ?? [];
         error = filterController?.error;
         status = filterController?.listStatus ?? ListStatus.ERROR;
-        break;
-      case ListType.SEARCHING:
-        helper =
-            searchController?.filterController?.pagingController?.pagingHelper;
-        listData = searchController?.listData;
-        error = searchController?.error;
-        status = searchController?.filterController?.pagingController?.status ??
-            ListStatus.ERROR;
         break;
     }
     notifyListeners();

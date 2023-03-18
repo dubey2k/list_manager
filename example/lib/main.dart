@@ -9,7 +9,6 @@ import 'package:list_manager/utils/FilterUtils/FilterController.dart';
 import 'package:list_manager/utils/FilterUtils/FilterData.dart';
 import 'package:list_manager/utils/PagingUtils/PagingController.dart';
 import 'package:list_manager/utils/PagingUtils/PagingHelper.dart';
-import 'package:list_manager/utils/SearchUtils/SearchController.dart';
 import 'package:provider/provider.dart';
 
 void main() {
@@ -89,64 +88,66 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                    child: SearchWidget(
-                  filterController: filterController,
-                  inputBorder: const OutlineInputBorder(),
-                )),
-                IconButton(
-                  icon: const Icon(Icons.filter_alt),
-                  onPressed: () async {
-                    filterController.loadFilters();
-                    showFilterBottomSheet();
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                      child: SearchWidget(
+                    filterController: filterController,
+                    inputBorder: const OutlineInputBorder(),
+                  )),
+                  IconButton(
+                    icon: const Icon(Icons.filter_alt),
+                    onPressed: () async {
+                      filterController.loadFilters();
+                      showFilterBottomSheet();
+                    },
+                  ),
+                ],
+              ),
+              Expanded(
+                child: ListManager<PostDataModel>(
+                  itemBuilder:
+                      (BuildContext context, PostDataModel data, int index) {
+                    return Container(
+                      margin: const EdgeInsets.symmetric(vertical: 10),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 30, horizontal: 10),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade300,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Text("${data.id}. " + data.title),
+                    );
                   },
-                ),
-              ],
-            ),
-            Expanded(
-              child: ListManager<PostDataModel>(
-                itemBuilder:
-                    (BuildContext context, PostDataModel data, int index) {
-                  return Container(
-                    margin: const EdgeInsets.symmetric(vertical: 10),
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 30, horizontal: 10),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade300,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Text("${data.id}. " + data.title),
-                  );
-                },
-                pagingController: controller,
-                filterController: filterController,
-                loader: const Center(
-                  child: Text(
-                    "Loading",
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
+                  pagingController: controller,
+                  filterController: filterController,
+                  loader: const Center(
+                    child: Text(
+                      "Loading",
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
+                  error: (context, error) {
+                    return Center(
+                      child: Text(
+                        "$error => at Page 1 itself",
+                        style: const TextStyle(color: Colors.red),
+                      ),
+                    );
+                  },
                 ),
-                error: (context, error) {
-                  return Center(
-                    child: Text(
-                      "$error => at Page 1 itself",
-                      style: const TextStyle(color: Colors.red),
-                    ),
-                  );
-                },
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -280,28 +281,4 @@ class _MyHomePageState extends State<MyHomePage> {
     controller.dispose();
     filterController.dispose();
   }
-
-  // Future<Result<List<PostDataModel>>> searchCall({required String query}) {
-  //   return Future.delayed(
-  //     const Duration(seconds: 1),
-  //     () {
-  //       List<PostDataModel> list = [];
-  //       int page = (helper?.page ?? 0);
-  //       for (int i = 10 * (page); i < 10 * (page + 1); i++) {
-  //         var model = PostDataModel.fromMap(filterData["data"][i]);
-  //         list.add(model);
-  //       }
-  //       filterController.setPagingConfig(
-  //         helper?.copyWith(
-  //               hasNext: true,
-  //               loadNext: true,
-  //               page: (page + 1),
-  //               nextUrl: "nextUrl",
-  //             ) ??
-  //             PagingHelper.init(),
-  //       );
-  //       return Success(data: list);
-  //     },
-  //   );
-  // }
 }

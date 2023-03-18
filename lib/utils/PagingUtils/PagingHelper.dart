@@ -4,7 +4,7 @@ import 'package:list_manager/list_manager.dart';
 class PagingHelper {
   static PagingHelper init({Widget? loader, WidgetCallback? error}) =>
       PagingHelper(
-        page: 0,
+        page: 1,
         loader: loader ?? const Center(child: CircularProgressIndicator()),
         error: error,
       );

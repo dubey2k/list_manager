@@ -7,7 +7,6 @@ import 'package:list_manager/Provider/ListProvider.dart';
 import 'package:list_manager/utils/FilterUtils/FilterController.dart';
 import 'package:list_manager/utils/PagingUtils/PagingController.dart';
 import 'package:list_manager/utils/PagingUtils/PagingHelper.dart';
-import 'package:list_manager/utils/SearchUtils/SearchController.dart';
 import 'package:provider/provider.dart';
 
 typedef ItemCallback<T> = Widget Function(
@@ -23,8 +22,8 @@ class ListManager<T> extends StatelessWidget {
     this.separatorBuilder,
     this.pagingController,
     this.filterController,
-    this.searchController,
     this.error,
+    this.noData,
     this.loader = const Center(child: CircularProgressIndicator()),
   }) : super(key: key);
   final ItemCallback<T> itemBuilder;
@@ -33,13 +32,14 @@ class ListManager<T> extends StatelessWidget {
 
   final FilterController<T>? filterController;
 
-  final SearchController<T>? searchController;
-
   /// Error Callback for page 1
   final WidgetCallback? error;
 
   /// Loader widget for page 1
   final Widget loader;
+
+  /// Empty Data Widget
+  final Widget? noData;
 
   @override
   Widget build(BuildContext context) {
@@ -47,13 +47,13 @@ class ListManager<T> extends StatelessWidget {
       create: (_) => ListProvider<T>(
         pagingController: pagingController,
         filterController: filterController,
-        searchController: searchController,
       ),
       child: Builder(
         builder: (context) {
           return ListWidget<T>(
             itemBuilder: itemBuilder,
             separatorBuilder: separatorBuilder,
+            noData: noData,
             error: error,
             loader: loader,
           );

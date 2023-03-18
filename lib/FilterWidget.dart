@@ -8,11 +8,21 @@ class FilterView extends StatefulWidget {
   final String title;
   final Function onChange;
   final FilterController controller;
+  final TextStyle? filterHeadTextStyle;
+  final TextStyle? subFilterTextStyle;
+  final bool? showFilterHead;
+  final Widget? apply, clear;
   const FilterView({
     Key? key,
     required this.onChange,
     required this.title,
     required this.controller,
+    this.filterHeadTextStyle =
+        const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+    this.subFilterTextStyle = const TextStyle(fontSize: 12),
+    this.showFilterHead = true,
+    this.apply,
+    this.clear,
   }) : super(key: key);
 
   @override
@@ -40,10 +50,9 @@ class _FilterViewState extends State<FilterView> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      // color: accent,
+    return SafeArea(
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Padding(
@@ -54,21 +63,22 @@ class _FilterViewState extends State<FilterView> {
                 Text(
                   widget.title,
                   style: const TextStyle(
-                      fontSize: 24, fontWeight: FontWeight.bold),
+                      fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 const Spacer(),
-                getFuncBtn(isClear: true),
-                getFuncBtn(),
+                clearButton(),
               ],
             ),
           ),
+          const SizedBox(height: 15),
           getChips(),
+          applyButton()
         ],
       ),
     );
   }
 
-  getFuncBtn({bool isClear = false}) {
+  applyButton() {
     if (widget.controller.filterStatus == FilterStatus.FILTER_IDLE ||
         widget.controller.filterStatus == FilterStatus.FILTER_LOADING) {
       return const Center(
@@ -81,17 +91,49 @@ class _FilterViewState extends State<FilterView> {
     } else if (widget.controller.filterStatus == FilterStatus.FILTER_ERROR) {
       return const SizedBox();
     } else {
-      return OutlinedButton(
-        onPressed: () async {
-          if (isClear) {
-            widget.controller.clearFilter();
-          } else {
-            widget.controller.applyFilters();
-          }
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        child: TextButton(
+          style: TextButton.styleFrom(
+              backgroundColor: Colors.blue,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5))),
+          onPressed: () {
+            widget.controller
+                .applyFilters(query: widget.controller.searchQuery);
+            Navigator.pop(context);
+          },
+          child: const Text(
+            "Apply",
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
+      );
+    }
+  }
+
+  clearButton() {
+    if (widget.controller.filterStatus == FilterStatus.FILTER_IDLE ||
+        widget.controller.filterStatus == FilterStatus.FILTER_LOADING) {
+      return const Center(
+        child: SizedBox(
+          height: 24,
+          width: 24,
+          child: CircularProgressIndicator(),
+        ),
+      );
+    } else if (widget.controller.filterStatus == FilterStatus.FILTER_ERROR) {
+      return const SizedBox();
+    } else {
+      return TextButton(
+        onPressed: () {
+          widget.controller.clearFilter();
           Navigator.pop(context);
         },
-        style: OutlinedButton.styleFrom(primary: Colors.amber.shade200),
-        child: Text(isClear ? "Clear" : "Apply"),
+        child: const Text(
+          "Reset",
+          style: TextStyle(color: Colors.black),
+        ),
       );
     }
   }
@@ -112,32 +154,37 @@ class _FilterViewState extends State<FilterView> {
       return Center(
         child: Text(
           widget.controller.error,
-          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
       );
     } else {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const SizedBox(height: 15),
+          widget.showFilterHead != null && widget.showFilterHead!
+              ? FilterChips(
+                  activeTextStyle: widget.filterHeadTextStyle,
+                  inActiveTextStyle: widget.filterHeadTextStyle,
+                  filterOptions: List.generate(
+                    widget.controller.filterData!.length,
+                    (index) {
+                      final res = widget.controller.getFilterOptions(index);
+                      return FilterOptionModel(name: res?.name ?? "", id: "");
+                    },
+                  ).toList(),
+                  OnSelect: (val) {
+                    if (mounted) {
+                      setState(() {
+                        selFilterIndex = val;
+                      });
+                    }
+                  },
+                )
+              : const SizedBox(),
+          const SizedBox(height: 5),
           FilterChips(
-            filterOptions: List.generate(
-              widget.controller.filterData!.length,
-              (index) {
-                final res = widget.controller.getFilterOptions(index);
-                return FilterOptionModel(name: res?.name ?? "", id: "");
-              },
-            ).toList(),
-            OnSelect: (val) {
-              if (mounted) {
-                setState(() {
-                  selFilterIndex = val;
-                });
-              }
-            },
-          ),
-          const SizedBox(height: 15),
-          FilterChips(
+            activeTextStyle: widget.subFilterTextStyle,
+            inActiveTextStyle: widget.subFilterTextStyle,
             subFilter: true,
             selected: widget.controller.filterData!
                 .elementAt(selFilterIndex)
@@ -167,6 +214,7 @@ class FilterChips extends StatefulWidget {
   List<int> selected;
   final Function OnSelect;
   final bool subFilter;
+  final TextStyle? activeTextStyle, inActiveTextStyle;
   FilterChips({
     Key? key,
     required this.filterOptions,
@@ -174,6 +222,8 @@ class FilterChips extends StatefulWidget {
     this.subFilter = false,
     this.selected = const [],
     this.filter,
+    required this.activeTextStyle,
+    required this.inActiveTextStyle,
   });
   @override
   _FilterChipsState createState() => _FilterChipsState();
@@ -192,12 +242,15 @@ class _FilterChipsState extends State<FilterChips> {
     return widget.subFilter
         ? ChipsChoice<int>.multiple(
             choiceActiveStyle: const C2ChoiceStyle(
+              showCheckmark: true,
               brightness: Brightness.light,
               margin: EdgeInsets.symmetric(horizontal: 8),
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
             ),
             choiceStyle: const C2ChoiceStyle(
               brightness: Brightness.light,
               margin: EdgeInsets.symmetric(horizontal: 8),
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
             ),
             value: widget.selected,
             onChanged: (val) {
@@ -224,18 +277,16 @@ class _FilterChipsState extends State<FilterChips> {
               brightness: Brightness.dark,
               showCheckmark: false,
               // color: accent2,
-              labelStyle:
-                  const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-              borderRadius: BorderRadius.circular(10),
-              padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
+              labelStyle: widget.activeTextStyle,
+              borderRadius: BorderRadius.circular(50),
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 15),
               margin: const EdgeInsets.symmetric(horizontal: 8),
             ),
             choiceStyle: C2ChoiceStyle(
               // color: accent,
-              borderRadius: BorderRadius.circular(10),
-              labelStyle:
-                  const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-              padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
+              borderRadius: BorderRadius.circular(50),
+              labelStyle: widget.inActiveTextStyle,
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 15),
               margin: const EdgeInsets.symmetric(horizontal: 8),
             ),
             value: value,

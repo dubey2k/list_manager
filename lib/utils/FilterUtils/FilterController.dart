@@ -15,32 +15,26 @@ enum FilterStatus {
   FILTER_LOADING,
   FILTER_ERROR,
   FILTER_LOADED,
-  FILTER_CHANGED,
-}
-
-enum SearchStatus {
-  SEARCH_IDLE,
-  SEARCH_QUERYING,
-  SEARCH_LOADED,
 }
 
 class FilterController<T> extends ChangeNotifier {
   FilterController({
-    this.filterData,
-    required this.loadFilter,
     required this.applyFilter,
+    this.filterData,
+    this.loadFilter,
     this.pagingController,
   });
   List<FilterData>? filterData;
-  final FetchFilters loadFilter;
+  final FetchFilters? loadFilter;
   final ApplyFilter<T> applyFilter;
   List<T>? listData;
   final PagingController<T>? pagingController;
   FilterStatus filterStatus = FilterStatus.FILTER_IDLE;
   ListStatus listStatus = ListStatus.IDLE;
-  SearchStatus searchStatus = SearchStatus.SEARCH_IDLE;
   String searchQuery = "";
   String error = "";
+  bool noFilter = true;
+  bool filterChanged = false;
 
   Future loadFilters() async {
     if (filterData != null) {
@@ -48,23 +42,25 @@ class FilterController<T> extends ChangeNotifier {
       filterData = filterData;
       return;
     }
-    filterStatus = FilterStatus.FILTER_LOADING;
-    var res = await loadFilter();
-    res.maybeMap(
-      success: (value) {
-        filterStatus = FilterStatus.FILTER_LOADED;
-        filterData = value.data;
-      },
-      failure: (value) {
-        filterStatus = FilterStatus.FILTER_ERROR;
-        error = value.reason;
-      },
-      orElse: () {
-        filterStatus = FilterStatus.FILTER_ERROR;
-        error = "Something went wrong";
-      },
-    );
-    notifyListeners();
+    if (loadFilter != null) {
+      filterStatus = FilterStatus.FILTER_LOADING;
+      var res = await loadFilter?.call();
+      res?.maybeMap(
+        success: (value) {
+          filterStatus = FilterStatus.FILTER_LOADED;
+          filterData = value.data;
+        },
+        failure: (value) {
+          filterStatus = FilterStatus.FILTER_ERROR;
+          error = value.reason;
+        },
+        orElse: () {
+          filterStatus = FilterStatus.FILTER_ERROR;
+          error = "Something went wrong";
+        },
+      );
+      notifyListeners();
+    }
   }
 
   void setPagingConfig(PagingHelper? helper) {
@@ -75,42 +71,48 @@ class FilterController<T> extends ChangeNotifier {
   }
 
   void applyFilters({String? query}) async {
-    listStatus = ListStatus.LOADING;
-    if ((filterStatus == FilterStatus.FILTER_CHANGED &&
-            filterData != null &&
-            (filterData?.isNotEmpty ?? true)) ||
-        (query != null && query.length > 3)) {
-      searchQuery = query ?? "";
-      notifyListeners();
-      Result<List<T>> res = await applyFilter(
-        selFilters: filterData,
-        query: query,
-        helper: pagingController?.pagingHelper,
-      );
-      res.maybeMap(
-        success: (value) {
-          listStatus = ListStatus.LOADED;
-          listData == null
-              ? listData = value.data
-              : listData?.addAll(value.data);
-          notifyListeners();
-        },
-        failure: (value) {
-          listStatus = ListStatus.ERROR;
-          error = value.reason;
-          notifyListeners();
-        },
-        orElse: () {
-          listStatus = ListStatus.ERROR;
-          notifyListeners();
-        },
-      );
-    } else if (query != null && query.isEmpty) {
-      //
-    } else {
+    if ((query == null || query == "") && noFilter) {
+      clearFilter();
+    } else if (query == searchQuery && !filterChanged) {
       filterStatus = FilterStatus.FILTER_ERROR;
       error = "No Filter or Query passed";
+    } else if (query != searchQuery && query != null) {
+      searchQuery = query;
+      if (query.length > 2 || query.isEmpty) {
+        await exeFilters();
+      }
+    } else if (filterChanged &&
+        filterData != null &&
+        (filterData?.isNotEmpty ?? false)) {
+      filterChanged = false;
+      await exeFilters();
     }
+  }
+
+  exeFilters() async {
+    listStatus = ListStatus.LOADING;
+    notifyListeners();
+    Result<List<T>> res = await applyFilter(
+      selFilters: filterData,
+      query: searchQuery,
+      helper: pagingController?.pagingHelper,
+    );
+    res.maybeMap(
+      success: (value) {
+        listStatus = ListStatus.LOADED;
+        listData = value.data;
+        notifyListeners();
+      },
+      failure: (value) {
+        listStatus = ListStatus.ERROR;
+        error = value.reason;
+        notifyListeners();
+      },
+      orElse: () {
+        listStatus = ListStatus.ERROR;
+        notifyListeners();
+      },
+    );
   }
 
   Future<Result<List<T>>> loadMore() async {
@@ -138,8 +140,20 @@ class FilterController<T> extends ChangeNotifier {
   }
 
   void setSubFilters(int selFilterIndex, List<int> val) {
-    filterStatus = FilterStatus.FILTER_CHANGED;
+    filterChanged = true;
     filterData![selFilterIndex].selected = val;
+    List<String> selValues = [];
+    filterData![selFilterIndex].selected.forEach((element) {
+      selValues.add(filterData![selFilterIndex].subFilterOptions[element].name);
+    });
+    filterData![selFilterIndex].selValue = selValues;
+    bool temp = true;
+    filterData?.forEach((element) {
+      if (element.selected.isNotEmpty) {
+        temp = false;
+      }
+    });
+    noFilter = temp;
   }
 
   FilterData? getFilterOptions(int index) {
@@ -159,7 +173,9 @@ class FilterController<T> extends ChangeNotifier {
   }
 
   void clearFilter() {
+    searchQuery = "";
     listData?.clear();
+    noFilter = true;
     filterStatus = FilterStatus.FILTER_IDLE;
     listStatus = ListStatus.IDLE;
     pagingController?.clearPaging();
