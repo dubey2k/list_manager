@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:list_manager/utils/FilterUtils/FilterController.dart';
 
+// ignore: must_be_immutable
 class SearchWidget<T> extends StatelessWidget {
   SearchWidget({
     Key? key,

@@ -1,3 +1,4 @@
+// ignore_for_file: snake_case_style
 Map postData = {
   "data": [
     {

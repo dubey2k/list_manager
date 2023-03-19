@@ -1,3 +1,4 @@
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:chips_choice/chips_choice.dart';
 import 'package:flutter/material.dart';
 import 'package:list_manager/utils/FilterUtils/FilterController.dart';
@@ -208,6 +209,7 @@ class _FilterViewState extends State<FilterView> {
   }
 }
 
+// ignore: must_be_immutable
 class FilterChips extends StatefulWidget {
   final List<String>? filter;
   final List<FilterOptionModel> filterOptions;
@@ -224,7 +226,7 @@ class FilterChips extends StatefulWidget {
     this.filter,
     required this.activeTextStyle,
     required this.inActiveTextStyle,
-  });
+  }) : super(key: key);
   @override
   _FilterChipsState createState() => _FilterChipsState();
 }
@@ -245,12 +247,12 @@ class _FilterChipsState extends State<FilterChips> {
               showCheckmark: true,
               brightness: Brightness.light,
               margin: EdgeInsets.symmetric(horizontal: 8),
-              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
             ),
             choiceStyle: const C2ChoiceStyle(
               brightness: Brightness.light,
               margin: EdgeInsets.symmetric(horizontal: 8),
-              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
             ),
             value: widget.selected,
             onChanged: (val) {

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:list_manager/APIResponse/Result.dart';
 import 'package:list_manager/Provider/ListProvider.dart';
-import 'package:list_manager/list_manager.dart';
 import 'package:list_manager/utils/FilterUtils/FilterData.dart';
 import 'package:list_manager/utils/PagingUtils/PagingController.dart';
 import 'package:list_manager/utils/PagingUtils/PagingHelper.dart';
@@ -143,9 +142,9 @@ class FilterController<T> extends ChangeNotifier {
     filterChanged = true;
     filterData![selFilterIndex].selected = val;
     List<String> selValues = [];
-    filterData![selFilterIndex].selected.forEach((element) {
+    for (var element in filterData![selFilterIndex].selected) {
       selValues.add(filterData![selFilterIndex].subFilterOptions[element].name);
-    });
+    }
     filterData![selFilterIndex].selValue = selValues;
     bool temp = true;
     filterData?.forEach((element) {

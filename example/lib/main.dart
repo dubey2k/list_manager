@@ -9,7 +9,6 @@ import 'package:list_manager/utils/FilterUtils/FilterController.dart';
 import 'package:list_manager/utils/FilterUtils/FilterData.dart';
 import 'package:list_manager/utils/PagingUtils/PagingController.dart';
 import 'package:list_manager/utils/PagingUtils/PagingHelper.dart';
-import 'package:provider/provider.dart';
 
 void main() {
   runApp(const MyApp());
@@ -122,7 +121,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         color: Colors.grey.shade300,
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: Text("${data.id}. " + data.title),
+                      child: Text("${data.id}. ${data.title}"),
                     );
                   },
                   pagingController: controller,
@@ -227,9 +226,7 @@ class _MyHomePageState extends State<MyHomePage> {
       builder: (context) {
         return FilterView(
           controller: filterController,
-          onChange: (val) {
-            print(val);
-          },
+          onChange: (val) {},
           title: "Filters",
         );
       },
@@ -265,7 +262,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget filterError(context, error) {
     return Center(
       child: Text(
-        "filter:" + error,
+        "filter: $error",
         style: const TextStyle(
           color: Colors.blue,
           fontSize: 24,

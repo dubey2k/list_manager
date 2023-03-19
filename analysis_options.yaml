@@ -2,3 +2,14 @@ include: package:flutter_lints/flutter.yaml
 
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options
+analyzer:
+  errors:
+    invalid_use_of_visible_for_testing_member: ignore
+    unused_import: ignore
+
+linter:
+  rules:
+    file_names: false
+    public_member_api_docs: false
+    non_constant_identifier_names: false
+    constant_identifier_names: false
