@@ -2,7 +2,7 @@ import 'package:example/PostDataModel.dart';
 import 'package:example/postData.dart';
 import 'package:flutter/material.dart';
 import 'package:list_manager/APIResponse/Result.dart';
-import 'package:list_manager/FilterWidget.dart';
+import 'package:list_manager/Components/FilterView.dart';
 import 'package:list_manager/SearchWidget.dart';
 import 'package:list_manager/list_manager.dart';
 import 'package:list_manager/utils/FilterUtils/FilterController.dart';
@@ -50,7 +50,7 @@ class _MyHomePageState extends State<MyHomePage> {
       loadData: fetch,
     );
     filterController = FilterController(
-      loadFilter: loadFilter,
+      loadFilters: loadFilters,
       pagingController: PagingController(
         pagingHelper: PagingHelper.init(error: filterError, loader: loader()),
         loadData: fetch2,
@@ -103,7 +103,6 @@ class _MyHomePageState extends State<MyHomePage> {
                   IconButton(
                     icon: const Icon(Icons.filter_alt),
                     onPressed: () async {
-                      filterController.loadFilters();
                       showFilterBottomSheet();
                     },
                   ),
@@ -150,25 +149,6 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
     );
-  }
-
-  Future<Result<List<FilterData>>> loadFilter() async {
-    return Future.delayed(const Duration(seconds: 1), () {
-      var data = [
-        FilterData(
-          filterKey: "Sort by Time",
-          subFilterOptions: [
-            FilterOptionModel(name: "Modified first"),
-            FilterOptionModel(name: "Modified last"),
-          ],
-        ),
-        FilterData(filterKey: "Sort by Position", subFilterOptions: [
-          FilterOptionModel(name: "Ascending"),
-          FilterOptionModel(name: "Descending"),
-        ]),
-      ];
-      return Success(data: data);
-    });
   }
 
   Future<Result<List<PostDataModel>>> fetch(PagingHelper? helper) async {
@@ -220,14 +200,17 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  void showFilterBottomSheet() {
+  void showFilterBottomSheet() async {
+    filterController.startLoadingFilters();
     showModalBottomSheet(
       context: context,
+      isDismissible: false,
+      showDragHandle: true,
+      scrollControlDisabledMaxHeightRatio: 0.8,
       builder: (context) {
-        return FilterView(
-          controller: filterController,
-          onChange: (val) {},
+        return FilterComponent(
           title: "Filters",
+          controller: filterController,
         );
       },
     );
@@ -277,5 +260,50 @@ class _MyHomePageState extends State<MyHomePage> {
     super.dispose();
     controller.dispose();
     filterController.dispose();
+  }
+
+  Future<Result<List<FilterData>>> loadFilters() async {
+    await Future.delayed(const Duration(seconds: 2));
+    final list = [
+      FDropdownData(
+        title: "User",
+        key: "user_id",
+        onChange: () {},
+        options: ["user1", "user2"],
+      ),
+      FDropdownData(
+        title: "Project",
+        key: "project_id",
+        onChange: () {},
+        options: ["project1", "project2"],
+      ),
+      FSliderData(
+        title: "Amount Range",
+        minKey: "amount_less_than",
+        maxKey: "amount_greater_than",
+        labels: const RangeLabels("0", "20000"),
+        values: const RangeValues(0, 20000),
+        min: 0,
+        max: 100000,
+      ),
+      FDateData(
+        title: "Date",
+        startDateKey: "start_date",
+        endDateKey: "end_date",
+        start: DateTime.now(),
+        end: DateTime.now().add(const Duration(days: 34)),
+      ),
+      FRadioData(
+        title: "Sort by Amount",
+        key: "sort_by_amount",
+        options: ["Ascending", "Descending"],
+      ),
+      FRadioData(
+        title: "Sort by Date",
+        key: "sort_by_date",
+        options: ["Ascending", "Descending"],
+      ),
+    ];
+    return Success(data: list);
   }
 }
