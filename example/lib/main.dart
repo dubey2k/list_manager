@@ -263,19 +263,33 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<Result<List<FilterData>>> loadFilters() async {
-    await Future.delayed(const Duration(seconds: 2));
+    // await Future.delayed(const Duration(seconds: 2));
     final list = [
       FDropdownData(
-        title: "User",
-        key: "user_id",
-        onChange: () {},
-        options: ["user1", "user2"],
-      ),
+          title: "User",
+          key: "user_id",
+          onChange: () {},
+          showSearchBox: true, //enable search box
+          isFilterOnline: true, // enable searchData function for searching
+          options: [
+            FilterOptionData(id: "user_id_1", name: "user 1"),
+            FilterOptionData(id: "user_id_2", name: "user 2"),
+          ],
+          searchData: (query) async {
+            await Future.delayed(const Duration(seconds: 2));
+            return [
+              FilterOptionData(id: "user_id_3", name: "user 3"),
+              FilterOptionData(id: "user_id_4", name: "user 4"),
+            ];
+          }),
       FDropdownData(
         title: "Project",
         key: "project_id",
         onChange: () {},
-        options: ["project1", "project2"],
+        options: [
+          FilterOptionData(id: "project_id_1", name: "project 1"),
+          FilterOptionData(id: "project_id_2", name: "project 2"),
+        ],
       ),
       FSliderData(
         title: "Amount Range",
@@ -296,12 +310,18 @@ class _MyHomePageState extends State<MyHomePage> {
       FRadioData(
         title: "Sort by Amount",
         key: "sort_by_amount",
-        options: ["Ascending", "Descending"],
+        options: [
+          FilterOptionData(id: "ASC", name: "Ascending"),
+          FilterOptionData(id: "DESC", name: "Descending"),
+        ],
       ),
       FRadioData(
         title: "Sort by Date",
         key: "sort_by_date",
-        options: ["Ascending", "Descending"],
+        options: [
+          FilterOptionData(id: "ASC", name: "Ascending"),
+          FilterOptionData(id: "DESC", name: "Descending"),
+        ],
       ),
     ];
     return Success(data: list);

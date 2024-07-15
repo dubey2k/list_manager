@@ -1,7 +1,7 @@
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:list_manager/Components/DateOptionWrapper.dart';
-import 'package:list_manager/Components/DropdownWidget.dart';
 import 'package:list_manager/utils/FilterUtils/FilterData.dart';
 import '../utils/FilterUtils/FilterController.dart';
 
@@ -174,17 +174,47 @@ class _FilterItemState<T> extends State<FilterItem<T>> {
       case FDropdownData:
         {
           final data = widget.selectionWidget as FDropdownData;
-          return DropdownWidget(
-            choices: data.options,
-            radius: data.radius,
-            backColor: data.backColor ?? backColor,
-            value: data.value,
-            onChange: (val) async {
-              await data.onChange?.call();
-              data.value = val;
-              widget.setFilterQuery!(data.key, val);
-              setState(() {});
-            },
+          return Container(
+            decoration: BoxDecoration(
+              color: data.backColor ?? backColor,
+              borderRadius: BorderRadius.circular(data.radius ?? 10),
+            ),
+            child: Center(
+              child: DropdownSearch<FilterOptionData>(
+                popupProps: PopupProps.menu(
+                  showSearchBox: data.showSearchBox ?? false,
+                  isFilterOnline: data.isFilterOnline ?? false,
+                  fit: FlexFit.loose,
+                ),
+                items: data.options,
+                dropdownDecoratorProps: DropDownDecoratorProps(
+                    dropdownSearchDecoration: InputDecoration(
+                      hintText: "Select/Search options",
+                      border: InputBorder.none,
+                      contentPadding: data.padding ??
+                          const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 0,
+                          ),
+                    ),
+                    textAlignVertical: TextAlignVertical.center),
+                asyncItems: data.searchData != null
+                    ? (search) async {
+                        return await data.searchData!(search);
+                      }
+                    : null,
+                itemAsString: (item) => item.name ?? item.id,
+                onChanged: (value) async {
+                  if (value != null) {
+                    data.value = value;
+                    await data.onChange?.call();
+                    widget.setFilterQuery!(data.key, value.id);
+                    setState(() {});
+                  }
+                },
+                selectedItem: data.value,
+              ),
+            ),
           );
         }
       case FSliderData:
@@ -246,7 +276,7 @@ class _FilterItemState<T> extends State<FilterItem<T>> {
                 contentPadding:
                     const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
                 title: Text(
-                  ele,
+                  ele.name ?? ele.id,
                   style: data.checkTitleStyle ?? const TextStyle(fontSize: 16),
                 ),
                 value: data.states[data.options.indexOf(ele)],
@@ -260,7 +290,7 @@ class _FilterItemState<T> extends State<FilterItem<T>> {
 
                     for (var i = 0; i < data.options.length; i++) {
                       if (data.states[i]) {
-                        options.add(data.options[i]);
+                        options.add(data.options[i].id);
                       }
                     }
 
@@ -277,10 +307,10 @@ class _FilterItemState<T> extends State<FilterItem<T>> {
           final data = widget.selectionWidget as FRadioData;
           return Column(
             children: data.options.map((ele) {
-              return RadioListTile<String>(
+              return RadioListTile<FilterOptionData>(
                 activeColor: data.activeColor,
                 title: Text(
-                  ele,
+                  ele.name ?? ele.id,
                   style: data.titleStyle ??
                       const TextStyle(
                           fontSize: 16, fontWeight: FontWeight.w700),
@@ -290,7 +320,7 @@ class _FilterItemState<T> extends State<FilterItem<T>> {
                   if (value != null) {
                     data.selected = value;
                     await data.onChange?.call();
-                    widget.setFilterQuery!(data.key, value);
+                    widget.setFilterQuery!(data.key, value.id);
                     setState(() {});
                   }
                 },

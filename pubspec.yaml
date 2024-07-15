@@ -11,6 +11,7 @@ environment:
 
 dependencies:
   chips_choice: ^2.0.1
+  dropdown_search: ^5.0.6
   flutter:
     sdk: flutter
   freezed_annotation: ^2.2.0

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+typedef SearchData = Future<List<FilterOptionData>> Function(String);
+
 class FilterData {
   final String title;
   final EdgeInsetsGeometry? padding;
@@ -7,11 +9,23 @@ class FilterData {
   const FilterData(this.title, {this.padding, this.headerStyle});
 }
 
+class FilterOptionData {
+  String id;
+  String? name;
+  FilterOptionData({
+    required this.id,
+    required this.name,
+  });
+}
+
 class FDropdownData extends FilterData {
   final String key;
-  String? value;
-  final List<String> options;
+  FilterOptionData? value;
+  final List<FilterOptionData> options;
+  final bool? isFilterOnline;
+  final bool? showSearchBox;
   final Function? onChange;
+  final SearchData? searchData;
   final Color? backColor;
   final double? radius;
   FDropdownData({
@@ -23,6 +37,9 @@ class FDropdownData extends FilterData {
     required this.options,
     this.backColor,
     this.radius,
+    this.isFilterOnline,
+    this.showSearchBox,
+    this.searchData,
   }) : super(title, padding: padding, headerStyle: headerStyle);
 }
 
@@ -73,7 +90,7 @@ class FDateData extends FilterData {
 
 class FCheckboxData extends FilterData {
   final String key;
-  final List<String> options;
+  final List<FilterOptionData> options;
   late List<bool> states;
   final Function? onChange;
   final TextStyle? checkTitleStyle;
@@ -93,8 +110,8 @@ class FCheckboxData extends FilterData {
 
 class FRadioData extends FilterData {
   final String key;
-  final List<String> options;
-  String? selected;
+  final List<FilterOptionData> options;
+  FilterOptionData? selected;
   final Function? onChange;
   final Color? activeColor;
   final TextStyle? titleStyle;
