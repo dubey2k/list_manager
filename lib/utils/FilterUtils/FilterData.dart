@@ -50,6 +50,8 @@ class FSliderData extends FilterData {
   final TextStyle? labelStyle;
   RangeValues values;
   RangeLabels labels;
+  RangeValues? selValues;
+  RangeLabels? selLabels;
   final Color? activeColor, inactiveColor;
 
   FSliderData({
@@ -72,6 +74,7 @@ class FSliderData extends FilterData {
 class FDateData extends FilterData {
   final String startDateKey, endDateKey;
   DateTime start, end;
+  DateTime? selStart, selEnd;
   final Function? onChange;
   final TextStyle? dateTextStyle;
 

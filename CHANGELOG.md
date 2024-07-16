@@ -12,3 +12,7 @@
 
     Updated Dropdown component to allow search realtime 
     Made option data components to get id for options
+
+# 2.1.5
+
+    Fixed Reset button issue, i.e. reset wasn't geting reflected on UI

@@ -228,7 +228,9 @@ class _FilterItemState<T> extends State<FilterItem<T>> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      data.labels.start,
+                      data.selLabels == null
+                          ? data.labels.start
+                          : data.selLabels!.start,
                       style: data.labelStyle ??
                           const TextStyle(
                             fontSize: 12,
@@ -236,7 +238,9 @@ class _FilterItemState<T> extends State<FilterItem<T>> {
                           ),
                     ),
                     Text(
-                      data.labels.end,
+                      data.selLabels == null
+                          ? data.labels.end
+                          : data.selLabels!.end,
                       style: data.labelStyle ??
                           const TextStyle(
                             fontSize: 12,
@@ -247,7 +251,7 @@ class _FilterItemState<T> extends State<FilterItem<T>> {
                 ),
               ),
               RangeSlider(
-                values: data.values,
+                values: data.selValues ?? data.values,
                 min: data.min,
                 max: data.max,
                 divisions: 20,
@@ -255,12 +259,12 @@ class _FilterItemState<T> extends State<FilterItem<T>> {
                 activeColor: data.activeColor,
                 inactiveColor: data.inactiveColor,
                 onChanged: (values) async {
-                  data.values = values;
-                  data.labels = RangeLabels(values.start.round().toString(),
+                  data.selValues = values;
+                  data.selLabels = RangeLabels(values.start.round().toString(),
                       values.end.round().toString());
                   await data.onChange?.call();
-                  widget.setFilterQuery!(data.minKey, data.values.start);
-                  widget.setFilterQuery!(data.maxKey, data.values.end);
+                  widget.setFilterQuery!(data.minKey, data.selValues?.start);
+                  widget.setFilterQuery!(data.maxKey, data.selValues?.end);
                   setState(() {});
                 },
               ),
@@ -342,14 +346,18 @@ class _FilterItemState<T> extends State<FilterItem<T>> {
                     DateOptionWrapper(
                       title: "Last 30 Days",
                       onTap: () async {
-                        data.start = DateTime.now();
-                        data.end =
+                        data.selStart = DateTime.now();
+                        data.selEnd =
                             DateTime.now().subtract(const Duration(days: 30));
                         await data.onChange?.call();
-                        widget.setFilterQuery!(data.startDateKey,
-                            DateFormat("dd/MM/yyyy").format(data.start));
-                        widget.setFilterQuery!(data.endDateKey,
-                            DateFormat("dd/MM/yyyy").format(data.end));
+                        widget.setFilterQuery!(
+                            data.startDateKey,
+                            DateFormat("dd/MM/yyyy")
+                                .format(data.selStart ?? data.start));
+                        widget.setFilterQuery!(
+                            data.endDateKey,
+                            DateFormat("dd/MM/yyyy")
+                                .format(data.selEnd ?? data.end));
                         setState(() {});
                       },
                       backColor: backColor,
@@ -357,14 +365,18 @@ class _FilterItemState<T> extends State<FilterItem<T>> {
                     DateOptionWrapper(
                       title: "Last 90 Days",
                       onTap: () async {
-                        data.start = DateTime.now();
-                        data.end =
+                        data.selStart = DateTime.now();
+                        data.selEnd =
                             DateTime.now().subtract(const Duration(days: 90));
                         await data.onChange?.call();
-                        widget.setFilterQuery!(data.startDateKey,
-                            DateFormat("dd/MM/yyyy").format(data.start));
-                        widget.setFilterQuery!(data.endDateKey,
-                            DateFormat("dd/MM/yyyy").format(data.end));
+                        widget.setFilterQuery!(
+                            data.startDateKey,
+                            DateFormat("dd/MM/yyyy")
+                                .format(data.selStart ?? data.start));
+                        widget.setFilterQuery!(
+                            data.endDateKey,
+                            DateFormat("dd/MM/yyyy")
+                                .format(data.selEnd ?? data.end));
                         setState(() {});
                       },
                       backColor: backColor,
@@ -372,14 +384,18 @@ class _FilterItemState<T> extends State<FilterItem<T>> {
                     DateOptionWrapper(
                       title: "Last 180 Days",
                       onTap: () async {
-                        data.start = DateTime.now();
-                        data.end =
+                        data.selStart = DateTime.now();
+                        data.selEnd =
                             DateTime.now().subtract(const Duration(days: 180));
                         await data.onChange?.call();
-                        widget.setFilterQuery!(data.startDateKey,
-                            DateFormat("dd/MM/yyyy").format(data.start));
-                        widget.setFilterQuery!(data.endDateKey,
-                            DateFormat("dd/MM/yyyy").format(data.end));
+                        widget.setFilterQuery!(
+                            data.startDateKey,
+                            DateFormat("dd/MM/yyyy")
+                                .format(data.selStart ?? data.start));
+                        widget.setFilterQuery!(
+                            data.endDateKey,
+                            DateFormat("dd/MM/yyyy")
+                                .format(data.selEnd ?? data.end));
                         setState(() {});
                       },
                       backColor: backColor,
@@ -387,14 +403,18 @@ class _FilterItemState<T> extends State<FilterItem<T>> {
                     DateOptionWrapper(
                       title: "Last 365 Days",
                       onTap: () async {
-                        data.start = DateTime.now();
-                        data.end =
+                        data.selStart = DateTime.now();
+                        data.selEnd =
                             DateTime.now().subtract(const Duration(days: 365));
                         await data.onChange?.call();
-                        widget.setFilterQuery!(data.startDateKey,
-                            DateFormat("dd/MM/yyyy").format(data.start));
-                        widget.setFilterQuery!(data.endDateKey,
-                            DateFormat("dd/MM/yyyy").format(data.end));
+                        widget.setFilterQuery!(
+                            data.startDateKey,
+                            DateFormat("dd/MM/yyyy")
+                                .format(data.selStart ?? data.start));
+                        widget.setFilterQuery!(
+                            data.endDateKey,
+                            DateFormat("dd/MM/yyyy")
+                                .format(data.selEnd ?? data.end));
                         setState(() {});
                       },
                       backColor: backColor,
@@ -420,14 +440,16 @@ class _FilterItemState<T> extends State<FilterItem<T>> {
                                 lastDate: DateTime.now(),
                               );
                               if (date != null) {
-                                data.start = date;
+                                data.selStart = date;
                                 await data.onChange?.call();
                                 widget.setFilterQuery!(
                                     data.startDateKey,
                                     DateFormat("dd/MM/yyyy")
-                                        .format(data.start));
-                                widget.setFilterQuery!(data.endDateKey,
-                                    DateFormat("dd/MM/yyyy").format(data.end));
+                                        .format(data.selStart ?? data.start));
+                                widget.setFilterQuery!(
+                                    data.endDateKey,
+                                    DateFormat("dd/MM/yyyy")
+                                        .format(data.selEnd ?? data.end));
                                 setState(() {});
                               }
                             },
@@ -446,14 +468,16 @@ class _FilterItemState<T> extends State<FilterItem<T>> {
                                 lastDate: DateTime.now(),
                               );
                               if (date != null) {
-                                data.end = date;
+                                data.selEnd = date;
                                 await data.onChange?.call();
                                 widget.setFilterQuery!(
                                     data.startDateKey,
                                     DateFormat("dd/MM/yyyy")
-                                        .format(data.start));
-                                widget.setFilterQuery!(data.endDateKey,
-                                    DateFormat("dd/MM/yyyy").format(data.end));
+                                        .format(data.selStart ?? data.start));
+                                widget.setFilterQuery!(
+                                    data.endDateKey,
+                                    DateFormat("dd/MM/yyyy")
+                                        .format(data.selEnd ?? data.end));
                                 setState(() {});
                               }
                             },
@@ -471,7 +495,7 @@ class _FilterItemState<T> extends State<FilterItem<T>> {
                             textAlign: TextAlign.center,
                             text: TextSpan(
                               text:
-                                  "${DateFormat('dd MMM').format(data.start)}\n",
+                                  "${DateFormat('dd MMM').format(data.selStart ?? data.start)}\n",
                               style: data.dateTextStyle ??
                                   const TextStyle(
                                     fontWeight: FontWeight.bold,
@@ -480,7 +504,8 @@ class _FilterItemState<T> extends State<FilterItem<T>> {
                                   ),
                               children: [
                                 TextSpan(
-                                  text: DateFormat('yyyy').format(data.start),
+                                  text: DateFormat('yyyy')
+                                      .format(data.selStart ?? data.start),
                                   style: data.dateTextStyle ??
                                       const TextStyle(
                                         fontWeight: FontWeight.bold,
@@ -497,7 +522,7 @@ class _FilterItemState<T> extends State<FilterItem<T>> {
                             textAlign: TextAlign.center,
                             text: TextSpan(
                               text:
-                                  "${DateFormat('dd MMM').format(data.end)}\n",
+                                  "${DateFormat('dd MMM').format(data.selEnd ?? data.end)}\n",
                               style: data.dateTextStyle ??
                                   const TextStyle(
                                     fontWeight: FontWeight.bold,
@@ -506,7 +531,8 @@ class _FilterItemState<T> extends State<FilterItem<T>> {
                                   ),
                               children: [
                                 TextSpan(
-                                  text: DateFormat('yyyy').format(data.end),
+                                  text: DateFormat('yyyy')
+                                      .format(data.selEnd ?? data.end),
                                   style: data.dateTextStyle ??
                                       const TextStyle(
                                         fontWeight: FontWeight.bold,

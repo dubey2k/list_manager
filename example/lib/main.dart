@@ -3,7 +3,7 @@ import 'package:example/postData.dart';
 import 'package:flutter/material.dart';
 import 'package:list_manager/APIResponse/Result.dart';
 import 'package:list_manager/Components/FilterView.dart';
-import 'package:list_manager/SearchWidget.dart';
+import 'package:list_manager/Components/SearchWidget.dart';
 import 'package:list_manager/list_manager.dart';
 import 'package:list_manager/utils/FilterUtils/FilterController.dart';
 import 'package:list_manager/utils/FilterUtils/FilterData.dart';

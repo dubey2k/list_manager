@@ -156,6 +156,42 @@ class FilterController<T> extends ChangeNotifier {
   void clearFilter() {
     searchQuery = "";
     listData?.clear();
+    filterItems.forEach((ele) {
+      switch (ele.runtimeType) {
+        case FDropdownData:
+          {
+            final item = ele as FDropdownData;
+            item.value = null;
+            break;
+          }
+        case FCheckboxData:
+          {
+            final item = ele as FCheckboxData;
+            item.states = List.filled(item.options.length, false);
+            break;
+          }
+        case FRadioData:
+          {
+            final item = ele as FRadioData;
+            item.selected = null;
+            break;
+          }
+        case FDateData:
+          {
+            final item = ele as FDateData;
+            item.selStart = null;
+            item.selEnd = null;
+            break;
+          }
+        case FSliderData:
+          {
+            final item = ele as FSliderData;
+            item.selLabels = null;
+            item.selValues = null;
+            break;
+          }
+      }
+    });
     filterStatus = FilterStatus.FILTER_IDLE;
     listStatus = ListStatus.IDLE;
     pagingController?.clearPaging();

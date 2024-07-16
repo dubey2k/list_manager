@@ -2,7 +2,7 @@ name: list_manager
 description: A package which helps you managing lists in flutter. It provide
   Paging, Filtering, Searching, Filtering + Paging, Searching + Paging,
   Searching, + Filtering + Paging.
-version: 2.1.0
+version: 2.1.5
 homepage: https://github.com/dubey2k/list_manager.git
 
 environment:
